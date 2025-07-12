@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Real Estate Newsletter Content</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 2.5rem;
+            max-width: 800px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap; /* Allow buttons to wrap on small screens */
+            justify-content: center;
+        }
+        button {
+            background-color: #4c51bf; /* Indigo-600 */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        button:hover {
+            background-color: #3b408f; /* Indigo-700 */
+        }
+        button:disabled {
+            background-color: #a0aec0; /* Gray-400 */
+            cursor: not-allowed;
+        }
+        .loading-indicator {
+            margin-top: 1rem;
+            font-style: italic;
+            color: #4a5568;
+        }
+        .article-display {
+            width: 100%;
+            border: 1px solid #e2e8f0; /* Gray-200 */
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            background-color: #f7fafc; /* Gray-50 */
+        }
+        .article-display h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 0.75rem;
+        }
+        .article-display p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+        }
+        .article-meta {
+            font-size: 0.875rem;
+            color: #718096;
+            margin-top: 1rem;
+            border-top: 1px dashed #cbd5e0;
+            padding-top: 0.75rem;
+        }
+        .article-list-section {
+            width: 100%;
+            margin-top: 2.5rem;
+            border-top: 2px solid #e2e8f0;
+            padding-top: 2rem;
+        }
+        .article-list-section h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .article-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .article-item {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem 1.25rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+        }
+        .article-item-title {
+            font-weight: 600;
+            color: #4c51bf;
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+        .article-item-date {
+            font-size: 0.85rem;
+            color: #718096;
+        }
+        .copy-button {
+            background-color: #38a169; /* Green-600 */
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            transition: background-color 0.2s ease-in-out;
+            cursor: pointer;
+            border: none;
+            margin-top: 0.75rem;
+            align-self: flex-end; /* Align copy button to the right */
+        }
+        .copy-button:hover {
+            background-color: #2f855a; /* Green-700 */
+        }
+        .message-box {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .message-box.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI-Powered Real Estate Newsletter Content</h1>
+
+        <div class="button-group">
+            <button id="generateArticleBtn">Generate Weekly Article</button>
+            <button id="refreshArticlesBtn">Refresh List</button>
+        </div>
+
+        <div id="loadingIndicator" class="loading-indicator hidden">Generating article...</div>
+
+        <div id="currentArticleDisplay" class="article-display hidden">
+            <h2 id="articleTitle"></h2>
+            <p id="articleContent"></p>
+            <div id="articleMeta" class="article-meta"></div>
+            <button class="copy-button" onclick="copyArticleToClipboard()">Copy Article</button>
+        </div>
+
+        <div class="article-list-section">
+            <h2>Past Articles</h2>
+            <div id="articleList" class="article-list">
+                <p class="text-gray-500 text-center" id="noArticlesMessage">No articles yet. Generate one!</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="messageBox" class="message-box"></div>
+
+    <script type="module">
+        // Firebase Configuration and Initialization
+        // IMPORTANT: In a real deployment, these values (__app_id, __firebase_config, __initial_auth_token)
+        // would be securely injected by your hosting environment (e.g., Google Cloud Canvas, Firebase Hosting functions).
+        // For local testing, you might need to manually define firebaseConfig and ensure you have
+        // a valid API key for Gemini. NEVER expose sensitive keys directly in client-side code in production.
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'; 
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+
+        // You will need to replace 'YOUR_GEMINI_API_KEY' with your actual Gemini API Key
+        // For secure production deployment, consider using a backend proxy to hide this key.
+        const geminiApiKey = ""; // Replace with your Gemini API key, or ensure it's securely injected by your environment.
+
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        let app, db, auth, userId;
+        let isAuthReady = false;
+
+        // Initialize Firebase and authenticate
+        const initFirebase = async () => {
+            try {
+                if (!firebaseConfig || !firebaseConfig.projectId || !firebaseConfig.apiKey) {
+                    console.error("Firebase configuration is missing or invalid. Please ensure the environment provides a valid Firebase config.");
+                    showMessage("Error: Firebase config missing. Check console.", 'error');
+                    return;
+                }
+
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        console.log("Authenticated with Firebase. User ID:", userId);
+                        isAuthReady = true;
+                        // Start listening for articles once authenticated
+                        listenForArticles();
+                    } else {
+                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                            await signInWithCustomToken(auth, __initial_auth_token);
+                            console.log("Signed in with custom token.");
+                        } else {
+                            await signInAnonymously(auth);
+                            console.log("Signed in anonymously.");
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error("Error initializing Firebase:", error);
+                showMessage(`Error initializing app: ${error.message}. Check console for details.`, 'error');
+            }
+        };
+
+        // DOM Elements
+        const generateArticleBtn = document.getElementById('generateArticleBtn');
+        const refreshArticlesBtn = document.getElementById('refreshArticlesBtn');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const currentArticleDisplay = document.getElementById('currentArticleDisplay');
+        const articleTitleElem = document.getElementById('articleTitle');
+        const articleContentElem = document.getElementById('articleContent');
+        const articleMetaElem = document.getElementById('articleMeta');
+        const articleListElem = document.getElementById('articleList');
+        const noArticlesMessage = document.getElementById('noArticlesMessage');
+        const messageBox = document.getElementById('messageBox');
+
+        // Show a temporary message box
+        function showMessage(message, type = 'info') {
+            messageBox.textContent = message;
+            messageBox.className = 'message-box show';
+            if (type === 'error') {
+                messageBox.style.backgroundColor = '#dc2626'; // Red
+            } else {
+                messageBox.style.backgroundColor = '#333'; // Default dark
+            }
+            setTimeout(() => {
+                messageBox.className = 'message-box';
+            }, 3000);
+        }
+
+        // Generate Article Function
+        async function generateArticle() {
+            if (!isAuthReady) {
+                showMessage("App not ready. Please wait for Firebase authentication.", 'error');
+                return;
+            }
+            if (!geminiApiKey) { // Added check for Gemini API key
+                showMessage("Gemini API Key is missing. Cannot generate content.", 'error');
+                console.error("Gemini API Key is not set. Please replace '' with your actual key or ensure it's securely injected.");
+                return;
+            }
+
+            generateArticleBtn.disabled = true;
+            loadingIndicator.classList.remove('hidden');
+            currentArticleDisplay.classList.add('hidden');
+            showMessage("Generating article, please wait...");
+
+            try {
+                const prompt = "Generate a concise, engaging, and informative real estate article (around 250 words) suitable for a weekly newsletter. The article should focus on one of the following topics: current market trends, home selling tips, home buying strategies, or seasonal home maintenance. Focus on real estate data and trends specific to Maryland, particularly Baltimore where applicable. Provide a catchy title and the article content. Format the response as a JSON object with 'title' and 'content' fields.";
+
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+
+                const payload = {
+                    contents: chatHistory,
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                "title": { "type": "STRING" },
+                                "content": { "type": "STRING" }
+                            },
+                            "propertyOrdering": ["title", "content"]
+                        }
+                    }
+                };
+
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`API error: ${response.status} ${response.statusText} - ${errorText}`);
+                }
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const jsonString = result.candidates[0].content.parts[0].text;
+                    const parsedArticle = JSON.parse(jsonString);
+
+                    if (parsedArticle && parsedArticle.title && parsedArticle.content) {
+                        // Save to Firestore
+                        const articlesColRef = collection(db, `artifacts/${appId}/public/data/newsletter_articles`);
+                        await addDoc(articlesColRef, {
+                            title: parsedArticle.title,
+                            content: parsedArticle.content,
+                            timestamp: serverTimestamp(), // Use server timestamp
+                            generatedBy: userId // Store who generated it (optional)
+                        });
+                        showMessage("Article generated and saved successfully!");
+                    } else {
+                         showMessage("Failed to generate article: Invalid article structure.", 'error');
+                         console.error("Generated JSON missing title or content:", parsedArticle);
+                    }
+                } else {
+                    showMessage("Failed to generate article: Unexpected API response structure.", 'error');
+                    console.error("Unexpected API response structure:", result);
+                }
+
+            } catch (error) {
+                showMessage(`Error generating article: ${error.message}`, 'error');
+                console.error("Error generating article:", error);
+            } finally {
+                generateArticleBtn.disabled = false;
+                loadingIndicator.classList.add('hidden');
+            }
+        }
+
+        // Listen for articles from Firestore
+        function listenForArticles() {
+            if (!db) {
+                console.warn("Firestore not initialized yet. Skipping article listener.");
+                return;
+            }
+
+            const articlesColRef = collection(db, `artifacts/${appId}/public/data/newsletter_articles`);
+            const q = query(articlesColRef, orderBy('timestamp', 'desc')); // Order by latest first
+
+            onSnapshot(q, (snapshot) => {
+                const articles = [];
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    articles.push({
+                        id: doc.id,
+                        title: data.title,
+                        content: data.content,
+                        timestamp: data.timestamp ? data.timestamp.toDate() : new Date() // Convert Firestore Timestamp to Date
+                    });
+                });
+
+                renderArticles(articles);
+            }, (error) => {
+                console.error("Error listening to articles:", error);
+                showMessage("Error loading articles. Check console.", 'error');
+            });
+        }
+
+        // Render articles to the UI
+        function renderArticles(articles) {
+            articleListElem.innerHTML = ''; // Clear existing list
+            if (articles.length === 0) {
+                noArticlesMessage.classList.remove('hidden');
+                currentArticleDisplay.classList.add('hidden');
+                return;
+            } else {
+                noArticlesMessage.classList.add('hidden');
+            }
+
+            // Display the latest article prominently
+            const latestArticle = articles[0];
+            if (latestArticle) {
+                articleTitleElem.textContent = latestArticle.title;
+                articleContentElem.textContent = latestArticle.content;
+                articleMetaElem.textContent = `Generated on: ${latestArticle.timestamp.toLocaleDateString()} at ${latestArticle.timestamp.toLocaleTimeString()}`;
+                currentArticleDisplay.classList.remove('hidden');
+            }
+
+            // Display all articles in the list
+            articles.forEach((article) => { // Removed 'index' as it wasn't used
+                const articleItem = document.createElement('div');
+                articleItem.className = 'article-item';
+                articleItem.innerHTML = `
+                    <div class="article-item-title">${article.title}</div>
+                    <div class="article-item-date">${article.timestamp.toLocaleDateString()} ${article.timestamp.toLocaleTimeString()}</div>
+                    <button class="copy-button" data-title="${article.title}" data-content="${article.content}">Copy</button>
+                `;
+                articleListElem.appendChild(articleItem);
+            });
+
+            // Add event listeners to copy buttons in the list
